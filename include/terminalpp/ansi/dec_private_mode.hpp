@@ -49,6 +49,12 @@ inline constexpr byte all_motion_mouse_tracking[] =
                                     terminalpp::detail::ascii::zero,
                                     terminalpp::detail::ascii::three };
 
+inline constexpr byte sgr_mouse_encoding[] =
+                                  { terminalpp::detail::ascii::one,
+                                    terminalpp::detail::ascii::zero,
+                                    terminalpp::detail::ascii::zero,
+                                    terminalpp::detail::ascii::six };
+
 inline constexpr byte use_alternate_screen_buffer[] =
                                   { terminalpp::detail::ascii::four,
                                     terminalpp::detail::ascii::seven };

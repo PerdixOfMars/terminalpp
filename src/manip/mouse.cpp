@@ -13,6 +13,16 @@ void enable_mouse::operator()(
 {
     if (beh.supports_basic_mouse_tracking)
     {
+        if (beh.supports_sgr_mouse_encoding)
+        {
+            detail::dec_pm(beh, write_fn);
+            write_fn(
+                {std::cbegin(ansi::dec_pm::sgr_mouse_encoding),
+                 std::cend(ansi::dec_pm::sgr_mouse_encoding)});
+            write_fn(
+                {std::cbegin(ansi::dec_pm::set), std::cend(ansi::dec_pm::set)});
+        }
+
         detail::dec_pm(beh, write_fn);
         write_fn(
             {std::cbegin(ansi::dec_pm::basic_mouse_tracking),

@@ -34,6 +34,20 @@ public:
     }
 };
 
+class a_terminal_with_basic_mouse_and_sgr_support : public a_terminal
+{
+public:
+    a_terminal_with_basic_mouse_and_sgr_support()
+      : a_terminal([] {
+            terminalpp::behaviour beh;
+            beh.supports_basic_mouse_tracking = true;
+            beh.supports_sgr_mouse_encoding = true;
+            return beh;
+        }())
+    {
+    }
+};
+
 }  // namespace
 
 TEST_F(
@@ -42,6 +56,15 @@ TEST_F(
 {
     terminal_ << terminalpp::enable_mouse();
     EXPECT_THAT(channel_.written_, ContainerEq("\x1B[?1000h"_tb));
+}
+
+TEST_F(
+    a_terminal_with_basic_mouse_and_sgr_support,
+    sends_enable_sgr_mouse_encoding_before_basic_mouse_tracking_when_enabling_mouse)
+{
+    terminal_ << terminalpp::enable_mouse();
+
+    EXPECT_THAT(channel_.written_, ContainerEq("\x1B[?1006h\x1B[?1000h"_tb));
 }
 
 TEST_F(

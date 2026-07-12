@@ -42,6 +42,9 @@ struct TERMINALPP_EXPORT behaviour
     // True if the terminal supports SGR mouse encoding.
     bool supports_sgr_mouse_encoding : 1 {false};
 
+    // True if the terminal supports button-event mouse tracking.
+    bool supports_button_event_mouse_tracking : 1 {false};
+
     // True if the terminal supports all mouse motion tracking.
     bool supports_all_mouse_motion_tracking : 1 {false};
 

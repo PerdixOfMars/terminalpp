@@ -48,6 +48,20 @@ public:
     }
 };
 
+class a_terminal_with_button_event_mouse_and_sgr_support : public a_terminal
+{
+public:
+    a_terminal_with_button_event_mouse_and_sgr_support()
+      : a_terminal([] {
+            terminalpp::behaviour beh;
+            beh.supports_button_event_mouse_tracking = true;
+            beh.supports_sgr_mouse_encoding = true;
+            return beh;
+        }())
+    {
+    }
+};
+
 }  // namespace
 
 TEST_F(
@@ -68,11 +82,38 @@ TEST_F(
 }
 
 TEST_F(
+    a_terminal_with_button_event_mouse_and_sgr_support,
+    sends_enable_sgr_mouse_encoding_before_button_event_mouse_tracking_when_enabling_mouse)
+{
+    terminal_ << terminalpp::enable_mouse();
+
+    EXPECT_THAT(channel_.written_, ContainerEq("\x1B[?1006h\x1B[?1002h"_tb));
+}
+
+TEST_F(
     a_terminal_with_basic_mouse_support,
     sends_disable_basic_mouse_tracking_when_disabling_mouse)
 {
     terminal_ << terminalpp::disable_mouse();
     EXPECT_THAT(channel_.written_, ContainerEq("\x1B[?1000l"_tb));
+}
+
+TEST_F(
+    a_terminal_with_basic_mouse_and_sgr_support,
+    sends_disable_basic_mouse_tracking_before_sgr_mouse_encoding_when_disabling_mouse)
+{
+    terminal_ << terminalpp::disable_mouse();
+
+    EXPECT_THAT(channel_.written_, ContainerEq("\x1B[?1000l\x1B[?1006l"_tb));
+}
+
+TEST_F(
+    a_terminal_with_button_event_mouse_and_sgr_support,
+    sends_disable_button_event_mouse_tracking_before_sgr_mouse_encoding_when_disabling_mouse)
+{
+    terminal_ << terminalpp::disable_mouse();
+
+    EXPECT_THAT(channel_.written_, ContainerEq("\x1B[?1002l\x1B[?1006l"_tb));
 }
 
 namespace {
@@ -90,22 +131,52 @@ public:
     }
 };
 
+class a_terminal_with_basic_mouse_and_all_mouse_motion_support
+  : public a_terminal
+{
+public:
+    a_terminal_with_basic_mouse_and_all_mouse_motion_support()
+      : a_terminal([] {
+            terminalpp::behaviour beh;
+            beh.supports_basic_mouse_tracking = true;
+            beh.supports_all_mouse_motion_tracking = true;
+            return beh;
+        }())
+    {
+    }
+};
+
 }  // namespace
 
 TEST_F(
-    a_terminal_with_all_mouse_motion_support,
-    sends_enable_all_mouse_motion_when_enabling_mouse)
+    a_terminal_with_all_mouse_motion_support, sends_nothing_when_enabling_mouse)
 {
     terminal_ << terminalpp::enable_mouse();
-    EXPECT_THAT(channel_.written_, ContainerEq("\x1B[?1003h"_tb));
+    EXPECT_THAT(channel_.written_, ContainerEq(""_tb));
 }
 
 TEST_F(
     a_terminal_with_all_mouse_motion_support,
-    sends_disable_basic_mouse_motion_when_disabling_mouse)
+    sends_nothing_when_disabling_mouse)
 {
     terminal_ << terminalpp::disable_mouse();
-    EXPECT_THAT(channel_.written_, ContainerEq("\x1B[?1003l"_tb));
+    EXPECT_THAT(channel_.written_, ContainerEq(""_tb));
+}
+
+TEST_F(
+    a_terminal_with_basic_mouse_and_all_mouse_motion_support,
+    sends_enable_basic_mouse_tracking_when_enabling_mouse)
+{
+    terminal_ << terminalpp::enable_mouse();
+    EXPECT_THAT(channel_.written_, ContainerEq("\x1B[?1000h"_tb));
+}
+
+TEST_F(
+    a_terminal_with_basic_mouse_and_all_mouse_motion_support,
+    sends_disable_basic_mouse_tracking_when_disabling_mouse)
+{
+    terminal_ << terminalpp::disable_mouse();
+    EXPECT_THAT(channel_.written_, ContainerEq("\x1B[?1000l"_tb));
 }
 
 TEST_F(a_terminal, setting_window_title_sends_nothing)

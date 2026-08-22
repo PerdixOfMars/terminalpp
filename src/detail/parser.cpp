@@ -349,33 +349,16 @@ std::optional<terminalpp::token> parser::parse_arguments(byte input)
 
 std::optional<terminalpp::token> parser::parse_mouse0(byte input)
 {
-    static constexpr struct
-    {
-        byte ansi_mouse_event;
-        mouse::event_type mouse_event;
-    } mouse_event_table[] = {
-        {ansi::mouse::left_button_down,   mouse::event_type::left_button_down },
-        {ansi::mouse::middle_button_down,
-         mouse::event_type::middle_button_down                                },
-        {ansi::mouse::right_button_down,  mouse::event_type::right_button_down},
-        {ansi::mouse::button_up,          mouse::event_type::button_up        },
-        {ansi::mouse::no_button_change,   mouse::event_type::no_button_change },
-        {ansi::mouse::scrollwheel_up,     mouse::event_type::scrollwheel_up   },
-        {ansi::mouse::scrollwheel_down,   mouse::event_type::scrollwheel_down },
-    };
+    auto const button_code =
+        static_cast<std::uint16_t>(input - ansi::mouse::mouse_value_offset);
 
-    if (auto const *result = std::ranges::find(
-            mouse_event_table,
-            input - ansi::mouse::mouse_value_offset,
-            [](auto const &entry) { return entry.ansi_mouse_event; });
-        result != std::cend(mouse_event_table))
-    {
-        mouse_event_type_ = result->mouse_event;
-    }
-    else
-    {
-        mouse_event_type_ = mouse::event_type::no_button_change;
-    }
+    mouse_button_ = button_from_code(button_code);
+    mouse_button_code_ = button_code;
+    mouse_modifiers_ = modifiers_from_code(button_code);
+    mouse_is_motion_ = (button_code & 32) != 0;
+    mouse_is_release_ =
+        static_cast<std::uint16_t>(button_code & ~std::uint16_t{60}) == 3;
+    mouse_event_type_ = action_from_button(mouse_button_, mouse_is_release_);
 
     state_ = state::mouse1;
     return {};
@@ -402,11 +385,11 @@ std::optional<terminalpp::token> parser::parse_mouse2(byte input)
     return {terminalpp::token{terminalpp::mouse::event{
         .action_ = mouse_event_type_,
         .position_ = mouse_coordinate_,
-        .button_ = mouse::button::none,
-        .button_code_ = std::nullopt,
-        .modifiers_ = terminalpp::vk_modifier::none,
-        .is_motion_ = false,
-        .is_release_ = false}}};
+        .button_ = mouse_button_,
+        .button_code_ = mouse_button_code_,
+        .modifiers_ = mouse_modifiers_,
+        .is_motion_ = mouse_is_motion_,
+        .is_release_ = mouse_is_release_}}};
 }
 
 }  // namespace terminalpp::detail

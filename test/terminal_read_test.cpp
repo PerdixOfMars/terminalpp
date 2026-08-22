@@ -179,11 +179,21 @@ token_test_data const token_test_data_table[] = {
     {"\x1B[M @B"_tb,
      {terminalpp::mouse::event{
          .action_ = terminalpp::mouse::event_type::left_button_down,
-         .position_ = {31, 33}}}                                },
+         .position_ = {31, 33},
+         .button_ = terminalpp::mouse::button::left,
+         .button_code_ = 0,
+         .modifiers_ = terminalpp::vk_modifier::none,
+         .is_motion_ = false,
+         .is_release_ = false}}                                  },
     {"\x1B[M!X4"_tb,
      {terminalpp::mouse::event{
          .action_ = terminalpp::mouse::event_type::middle_button_down,
-         .position_ = {55, 19}}}                                },
+         .position_ = {55, 19},
+         .button_ = terminalpp::mouse::button::middle,
+         .button_code_ = 1,
+         .modifiers_ = terminalpp::vk_modifier::none,
+         .is_motion_ = false,
+         .is_release_ = false}}                                  },
     {"\x1B[<0;32;34M"_tb,
      {terminalpp::mouse::event{
          .action_ = terminalpp::mouse::event_type::left_button_down,
@@ -1078,7 +1088,12 @@ partial_token_test_data const partial_token_test_data_table[] = {
     {"\x1B[M"_tb,
      "!X4"_tb, {terminalpp::mouse::event{
          .action_ = terminalpp::mouse::event_type::middle_button_down,
-         .position_ = {55, 19}}}},
+         .position_ = {55, 19},
+         .button_ = terminalpp::mouse::button::middle,
+         .button_code_ = 1,
+         .modifiers_ = terminalpp::vk_modifier::none,
+         .is_motion_ = false,
+         .is_release_ = false}}},
 };
 
 INSTANTIATE_TEST_SUITE_P(

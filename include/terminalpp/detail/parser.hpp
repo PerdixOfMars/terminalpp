@@ -42,6 +42,11 @@ private:
     byte extender_;
     bool meta_;
     mouse::event_type mouse_event_type_;
+    mouse::button mouse_button_;
+    std::optional<std::uint16_t> mouse_button_code_;
+    vk_modifier mouse_modifiers_;
+    bool mouse_is_motion_;
+    bool mouse_is_release_;
     point mouse_coordinate_;
     byte_storage argument_;
     std::vector<byte_storage> arguments_;

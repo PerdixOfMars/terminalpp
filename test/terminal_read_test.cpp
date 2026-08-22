@@ -203,6 +203,13 @@ token_test_data const token_test_data_table[] = {
          .modifiers_ = terminalpp::vk_modifier::none,
          .is_motion_ = false,
          .is_release_ = false}}                                  },
+    {"\x1B[<a;32;34M"_tb,
+     {terminalpp::control_sequence{
+         .initiator = '[',
+         .command = 'M',
+         .meta = false,
+         .arguments = {"a"_tb, "32"_tb, "34"_tb},
+         .extender = '<'}}                                        },
 
     // Cursor keys are converted to the respective virtual keys.
     {"\x1B[A"_tb,

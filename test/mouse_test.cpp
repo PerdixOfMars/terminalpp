@@ -79,12 +79,13 @@ constexpr mouse_event_test_data const mouse_event_strings[] = {
          .position_ = {15, 17},
          .button_ = terminalpp::mouse::button::button_8,
          .button_code_ = 188,
-         .modifiers_ =
-             terminalpp::vk_modifier::shift | terminalpp::vk_modifier::ctrl
-             | terminalpp::vk_modifier::meta,
+         .modifiers_ = terminalpp::vk_modifier::shift
+                     | terminalpp::vk_modifier::ctrl
+                     | terminalpp::vk_modifier::meta,
          .is_motion_ = true,
          .is_release_ = true},
-     "mouse_event[point(15,17), up, button:button-8, code:188, mods:shift|ctrl|meta, motion, release]"           },
+     "mouse_event[point(15,17), up, button:button-8, code:188, "
+     "mods:shift|ctrl|meta, motion, release]"                                                                    },
 };
 
 INSTANTIATE_TEST_SUITE_P(

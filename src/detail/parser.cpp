@@ -7,10 +7,10 @@
 #include "terminalpp/detail/ascii.hpp"
 
 #include <algorithm>
-#include <cassert>
-#include <cctype>
 #include <charconv>
 #include <limits>
+#include <cassert>
+#include <cctype>
 
 namespace terminalpp::detail {
 
@@ -49,9 +49,9 @@ mouse::event_type action_from_button(mouse::button button, bool is_release)
     if (is_release)
     {
         return button == mouse::button::scrollwheel_up
-                || button == mouse::button::scrollwheel_down
-            ? mouse::event_type::no_button_change
-            : mouse::event_type::button_up;
+                    || button == mouse::button::scrollwheel_down
+                 ? mouse::event_type::no_button_change
+                 : mouse::event_type::button_up;
     }
 
     switch (button)
@@ -73,7 +73,8 @@ mouse::event_type action_from_button(mouse::button button, bool is_release)
 
 mouse::button button_from_code(std::uint16_t code)
 {
-    auto const base_code = static_cast<std::uint16_t>(code & ~std::uint16_t{60});
+    auto const base_code =
+        static_cast<std::uint16_t>(code & ~std::uint16_t{60});
 
     switch (base_code)
     {
@@ -127,8 +128,7 @@ terminalpp::vk_modifier modifiers_from_code(std::uint16_t code)
 }
 
 std::optional<mouse::event> make_sgr_mouse_event(
-    std::vector<byte_storage> const &arguments,
-    byte command)
+    std::vector<byte_storage> const &arguments, byte command)
 {
     if (arguments.size() != 3)
     {
@@ -153,13 +153,15 @@ std::optional<mouse::event> make_sgr_mouse_event(
 
     return mouse::event{
         .action_ = action_from_button(button, is_release),
-        .position_ = {static_cast<coordinate_type>(*x - 1),
-                      static_cast<coordinate_type>(*y - 1)},
+        .position_ =
+            {static_cast<coordinate_type>(*x - 1),
+                        static_cast<coordinate_type>(*y - 1)},
         .button_ = button,
         .button_code_ = button_code,
         .modifiers_ = modifiers_from_code(button_code),
         .is_motion_ = (button_code & 32) != 0,
-        .is_release_ = is_release};
+        .is_release_ = is_release
+    };
 }
 
 }  // namespace

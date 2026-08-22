@@ -3,6 +3,9 @@
 
 #include <gtest/gtest.h>
 
+#include <utility>
+#include <vector>
+
 using namespace terminalpp::literals;  // NOLINT
 using testing::ValuesIn;
 
@@ -26,6 +29,37 @@ using token_test_data = std::tuple<
     terminalpp::byte_storage,  // Input byte sequence
     terminalpp::token_storage  // Expected output
     >;
+
+terminalpp::mouse::event mouse_event(
+    terminalpp::mouse::event_type action,
+    terminalpp::point position,
+    terminalpp::mouse::button button,
+    std::uint16_t button_code,
+    terminalpp::vk_modifier modifiers = terminalpp::vk_modifier::none,
+    bool is_motion = false,
+    bool is_release = false)
+{
+    return terminalpp::mouse::event{
+        .action_ = action,
+        .position_ = position,
+        .button_ = button,
+        .button_code_ = button_code,
+        .modifiers_ = modifiers,
+        .is_motion_ = is_motion,
+        .is_release_ = is_release};
+}
+
+terminalpp::control_sequence sgr_mouse_fallback(
+    terminalpp::byte command,
+    std::vector<terminalpp::byte_storage> arguments)
+{
+    return terminalpp::control_sequence{
+        .initiator = '[',
+        .command = command,
+        .meta = false,
+        .arguments = std::move(arguments),
+        .extender = '<'};
+}
 
 class a_terminal_reading_input_tokens
   : public testing::TestWithParam<token_test_data>,
@@ -177,39 +211,138 @@ token_test_data const token_test_data_table[] = {
     // ANSI mouse events are converted to the respective structure
     {"\x1B[M"_tb,      {}                                       },
     {"\x1B[M @B"_tb,
-     {terminalpp::mouse::event{
-         .action_ = terminalpp::mouse::event_type::left_button_down,
-         .position_ = {31, 33},
-         .button_ = terminalpp::mouse::button::left,
-         .button_code_ = 0,
-         .modifiers_ = terminalpp::vk_modifier::none,
-         .is_motion_ = false,
-         .is_release_ = false}}                                  },
+     {mouse_event(
+         terminalpp::mouse::event_type::left_button_down,
+         {31, 33},
+         terminalpp::mouse::button::left,
+         0)}                                                      },
     {"\x1B[M!X4"_tb,
-     {terminalpp::mouse::event{
-         .action_ = terminalpp::mouse::event_type::middle_button_down,
-         .position_ = {55, 19},
-         .button_ = terminalpp::mouse::button::middle,
-         .button_code_ = 1,
-         .modifiers_ = terminalpp::vk_modifier::none,
-         .is_motion_ = false,
-         .is_release_ = false}}                                  },
+     {mouse_event(
+         terminalpp::mouse::event_type::middle_button_down,
+         {55, 19},
+         terminalpp::mouse::button::middle,
+         1)}                                                      },
     {"\x1B[<0;32;34M"_tb,
-     {terminalpp::mouse::event{
-         .action_ = terminalpp::mouse::event_type::left_button_down,
-         .position_ = {31, 33},
-         .button_ = terminalpp::mouse::button::left,
-         .button_code_ = 0,
-         .modifiers_ = terminalpp::vk_modifier::none,
-         .is_motion_ = false,
-         .is_release_ = false}}                                  },
+     {mouse_event(
+         terminalpp::mouse::event_type::left_button_down,
+         {31, 33},
+         terminalpp::mouse::button::left,
+         0)}                                                      },
+    {"\x1B[<0;32;34m"_tb,
+     {mouse_event(
+         terminalpp::mouse::event_type::button_up,
+         {31, 33},
+         terminalpp::mouse::button::left,
+         0,
+         terminalpp::vk_modifier::none,
+         false,
+         true)}                                                   },
+    {"\x1B[<28;32;34M"_tb,
+     {mouse_event(
+         terminalpp::mouse::event_type::left_button_down,
+         {31, 33},
+         terminalpp::mouse::button::left,
+         28,
+         terminalpp::vk_modifier::shift | terminalpp::vk_modifier::ctrl
+             | terminalpp::vk_modifier::meta)}                    },
+    {"\x1B[<32;32;34M"_tb,
+     {mouse_event(
+         terminalpp::mouse::event_type::left_button_down,
+         {31, 33},
+         terminalpp::mouse::button::left,
+         32,
+         terminalpp::vk_modifier::none,
+         true)}                                                   },
+    {"\x1B[<64;32;34M"_tb,
+     {mouse_event(
+         terminalpp::mouse::event_type::scrollwheel_up,
+         {31, 33},
+         terminalpp::mouse::button::scrollwheel_up,
+         64)}                                                     },
+    {"\x1B[<65;32;34m"_tb,
+     {mouse_event(
+         terminalpp::mouse::event_type::no_button_change,
+         {31, 33},
+         terminalpp::mouse::button::scrollwheel_down,
+         65,
+         terminalpp::vk_modifier::none,
+         false,
+         true)}                                                   },
+    {"\x1B[<66;32;34M"_tb,
+     {mouse_event(
+         terminalpp::mouse::event_type::no_button_change,
+         {31, 33},
+         terminalpp::mouse::button::scrollwheel_right,
+         66)}                                                     },
+    {"\x1B[<67;32;34M"_tb,
+     {mouse_event(
+         terminalpp::mouse::event_type::no_button_change,
+         {31, 33},
+         terminalpp::mouse::button::scrollwheel_left,
+         67)}                                                     },
+    {"\x1B[<160;32;34M"_tb,
+     {mouse_event(
+         terminalpp::mouse::event_type::no_button_change,
+         {31, 33},
+         terminalpp::mouse::button::button_8,
+         160,
+         terminalpp::vk_modifier::none,
+         true)}                                                   },
+    {"\x1B[<129;32;34M"_tb,
+     {mouse_event(
+         terminalpp::mouse::event_type::no_button_change,
+         {31, 33},
+         terminalpp::mouse::button::button_9,
+         129)}                                                    },
+    {"\x1B[<130;32;34M"_tb,
+     {mouse_event(
+         terminalpp::mouse::event_type::no_button_change,
+         {31, 33},
+         terminalpp::mouse::button::button_10,
+         130)}                                                    },
+    {"\x1B[<131;32;34M"_tb,
+     {mouse_event(
+         terminalpp::mouse::event_type::no_button_change,
+         {31, 33},
+         terminalpp::mouse::button::button_11,
+         131)}                                                    },
+    {"\x1B[<132;32;34M"_tb,
+     {mouse_event(
+         terminalpp::mouse::event_type::no_button_change,
+         {31, 33},
+         terminalpp::mouse::button::button_8,
+         132,
+         terminalpp::vk_modifier::shift)}                         },
+    {"\x1B[<192;32;34M"_tb,
+     {mouse_event(
+         terminalpp::mouse::event_type::no_button_change,
+         {31, 33},
+         terminalpp::mouse::button::unknown,
+         192)}                                                    },
+    {"\x9B<000;032;034M"_tb,
+     {mouse_event(
+         terminalpp::mouse::event_type::left_button_down,
+         {31, 33},
+         terminalpp::mouse::button::left,
+         0)}                                                      },
     {"\x1B[<a;32;34M"_tb,
-     {terminalpp::control_sequence{
-         .initiator = '[',
-         .command = 'M',
-         .meta = false,
-         .arguments = {"a"_tb, "32"_tb, "34"_tb},
-         .extender = '<'}}                                        },
+     {sgr_mouse_fallback('M', {"a"_tb, "32"_tb, "34"_tb})}        },
+    {"\x1B[<0;0;34M"_tb,
+     {sgr_mouse_fallback('M', {"0"_tb, "0"_tb, "34"_tb})}         },
+    {"\x1B[<0;32;0M"_tb,
+     {sgr_mouse_fallback('M', {"0"_tb, "32"_tb, "0"_tb})}         },
+    {"\x1B[<0;32M"_tb,
+     {sgr_mouse_fallback('M', {"0"_tb, "32"_tb})}                 },
+    {"\x1B[<0;32;34;1M"_tb,
+     {sgr_mouse_fallback('M', {"0"_tb, "32"_tb, "34"_tb, "1"_tb})}},
+    {"\x1B[<0;;34M"_tb,
+     {sgr_mouse_fallback('M', {"0"_tb, ""_tb, "34"_tb})}          },
+    {"\x1B[<-1;32;34M"_tb,
+     {sgr_mouse_fallback('M', {"-1"_tb, "32"_tb, "34"_tb})}       },
+    {"\x1B[<65536;32;34M"_tb,
+     {sgr_mouse_fallback('M', {"65536"_tb, "32"_tb, "34"_tb})}    },
+    {"\x1B[<0;2147483648;34M"_tb,
+     {sgr_mouse_fallback('M', {"0"_tb, "2147483648"_tb, "34"_tb})}},
 
     // Cursor keys are converted to the respective virtual keys.
     {"\x1B[A"_tb,

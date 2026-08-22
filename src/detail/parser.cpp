@@ -139,10 +139,13 @@ std::optional<mouse::event> make_sgr_mouse_event(
     auto const x = parse_number(arguments[1]);
     auto const y = parse_number(arguments[2]);
 
-    if (!code || !x || !y || *x == 0 || *y == 0
-        || *code > std::numeric_limits<std::uint16_t>::max()
-        || *x > std::numeric_limits<coordinate_type>::max()
-        || *y > std::numeric_limits<coordinate_type>::max())
+    constexpr auto max_button_code =
+        static_cast<std::uint32_t>(std::numeric_limits<std::uint16_t>::max());
+    constexpr auto max_coordinate =
+        static_cast<std::uint32_t>(std::numeric_limits<coordinate_type>::max());
+
+    if (!code || !x || !y || *x == 0 || *y == 0 || *code > max_button_code
+        || *x > max_coordinate || *y > max_coordinate)
     {
         return {};
     }

@@ -321,6 +321,14 @@ std::optional<terminalpp::token> parser::parse_arguments(byte input)
     {
         extender_ = input;
     }
+    else if (
+        initializer_ == terminalpp::ansi::control7::csi[1]
+        && extender_ == terminalpp::detail::ascii::less_than
+        && input != terminalpp::detail::ascii::uppercase_m
+        && input != terminalpp::detail::ascii::lowercase_m)
+    {
+        argument_.push_back(input);
+    }
     else
     {
         // construct and return a control sequence.

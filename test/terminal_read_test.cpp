@@ -50,8 +50,7 @@ terminalpp::mouse::event mouse_event(
 }
 
 terminalpp::control_sequence sgr_mouse_fallback(
-    terminalpp::byte command,
-    std::vector<terminalpp::byte_storage> arguments)
+    terminalpp::byte command, std::vector<terminalpp::byte_storage> arguments)
 {
     return terminalpp::control_sequence{
         .initiator = '[',
@@ -83,7 +82,7 @@ TEST_P(a_terminal_reading_input_tokens, tokenizes_the_results)
 }
 
 token_test_data const token_test_data_table[] = {
-    {""_tb,            {}                                       },
+    {""_tb,                       {}                                                  },
 
     // Single characters yield virtual keys
     {"z"_tb,
@@ -91,25 +90,25 @@ token_test_data const token_test_data_table[] = {
          .key = terminalpp::vk::lowercase_z,
          .modifiers = terminalpp::vk_modifier::none,
          .repeat_count = 1,
-         .sequence = {'z'_tb}}}                                 },
+         .sequence = {'z'_tb}}}                                                       },
     {"a"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::lowercase_a,
          .modifiers = terminalpp::vk_modifier::none,
          .repeat_count = 1,
-         .sequence = {'a'_tb}}}                                 },
+         .sequence = {'a'_tb}}}                                                       },
     {"J"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::uppercase_j,
          .modifiers = terminalpp::vk_modifier::none,
          .repeat_count = 1,
-         .sequence = {'J'_tb}}}                                 },
+         .sequence = {'J'_tb}}}                                                       },
     {"X"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::uppercase_x,
          .modifiers = terminalpp::vk_modifier::none,
          .repeat_count = 1,
-         .sequence = {'X'_tb}}}                                 },
+         .sequence = {'X'_tb}}}                                                       },
 
     {"AB"_tb,
      {
@@ -123,13 +122,13 @@ token_test_data const token_test_data_table[] = {
              .modifiers = terminalpp::vk_modifier::none,
              .repeat_count = 1,
              .sequence = {'B'_tb}},
-     }                                                          },
+     }                                                                                },
 
     // Partial commands yield nothing, including partial but otherwise
     // complete-looking mouse commands.
-    {"\x1B"_tb,        {}                                       },
-    {"\x1B["_tb,       {}                                       },
-    {"\x1B[M"_tb,      {}                                       },
+    {"\x1B"_tb,                   {}                                                  },
+    {"\x1B["_tb,                  {}                                                  },
+    {"\x1B[M"_tb,                 {}                                                  },
 
     // Protocol-encoded commands are converted to control sequences
     {"\x1B[S"_tb,
@@ -137,31 +136,31 @@ token_test_data const token_test_data_table[] = {
          .initiator = '[',
          .command = 'S',
          .meta = false,
-         .arguments = {""_tb}}}                                 },
+         .arguments = {""_tb}}}                                                       },
     {"\x9BS"_tb,
      {terminalpp::control_sequence{
          .initiator = '[',
          .command = 'S',
          .meta = false,
-         .arguments = {""_tb}}}                                 },
+         .arguments = {""_tb}}}                                                       },
     {"\x1B[22;33S"_tb,
      {terminalpp::control_sequence{
          .initiator = '[',
          .command = 'S',
          .meta = false,
-         .arguments = {"22"_tb, "33"_tb}}}                      },
+         .arguments = {"22"_tb, "33"_tb}}}                                            },
     {"\x9B"_tb
-     "22;33S"_tb, {terminalpp::control_sequence{
+     "22;33S"_tb,            {terminalpp::control_sequence{
          .initiator = '[',
          .command = 'S',
          .meta = false,
-         .arguments = {"22"_tb, "33"_tb}}}},
+         .arguments = {"22"_tb, "33"_tb}}}                      },
     {"\x1B?M"_tb,
      {terminalpp::control_sequence{
          .initiator = '?',
          .command = 'M',
          .meta = false,
-         .arguments = {""_tb}}}                                 },
+         .arguments = {""_tb}}}                                                       },
 
     // Doubly-escaped protocol-encoded commands are converted to control
     // sequences with the meta flag.
@@ -170,13 +169,13 @@ token_test_data const token_test_data_table[] = {
          .initiator = '[',
          .command = 'S',
          .meta = true,
-         .arguments = {""_tb}}}                                 },
+         .arguments = {""_tb}}}                                                       },
     {"\x1B\x1B[T"_tb,
      {terminalpp::control_sequence{
          .initiator = '[',
          .command = 'T',
          .meta = true,
-         .arguments = {""_tb}}}                                 },
+         .arguments = {""_tb}}}                                                       },
 
     // Extended commands are converted to extended control sequences
     {"\x1B[?6n"_tb,
@@ -185,49 +184,49 @@ token_test_data const token_test_data_table[] = {
          .command = 'n',
          .meta = false,
          .arguments = {"6"_tb},
-         .extender = '?'}}                                      },
+         .extender = '?'}}                                                            },
     {"\x1B[>5c"_tb,
      {terminalpp::control_sequence{
          .initiator = '[',
          .command = 'c',
          .meta = false,
          .arguments = {"5"_tb},
-         .extender = '>'}}                                      },
+         .extender = '>'}}                                                            },
     {"\x1B[!p"_tb,
      {terminalpp::control_sequence{
          .initiator = '[',
          .command = 'p',
          .meta = false,
          .arguments = {""_tb},
-         .extender = '!'}}                                      },
+         .extender = '!'}}                                                            },
     {"\x9B!p"_tb,
      {terminalpp::control_sequence{
          .initiator = '[',
          .command = 'p',
          .meta = false,
          .arguments = {""_tb},
-         .extender = '!'}}                                      },
+         .extender = '!'}}                                                            },
 
     // ANSI mouse events are converted to the respective structure
-    {"\x1B[M"_tb,      {}                                       },
+    {"\x1B[M"_tb,                 {}                                                  },
     {"\x1B[M @B"_tb,
      {mouse_event(
          terminalpp::mouse::event_type::left_button_down,
          {31, 33},
          terminalpp::mouse::button::left,
-         0)}                                                      },
+         0)}                                                                          },
     {"\x1B[M!X4"_tb,
      {mouse_event(
          terminalpp::mouse::event_type::middle_button_down,
          {55, 19},
          terminalpp::mouse::button::middle,
-         1)}                                                      },
+         1)}                                                                          },
     {"\x1B[<0;32;34M"_tb,
      {mouse_event(
          terminalpp::mouse::event_type::left_button_down,
          {31, 33},
          terminalpp::mouse::button::left,
-         0)}                                                      },
+         0)}                                                                          },
     {"\x1B[<0;32;34m"_tb,
      {mouse_event(
          terminalpp::mouse::event_type::button_up,
@@ -236,7 +235,7 @@ token_test_data const token_test_data_table[] = {
          0,
          terminalpp::vk_modifier::none,
          false,
-         true)}                                                   },
+         true)}                                                                       },
     {"\x1B[<28;32;34M"_tb,
      {mouse_event(
          terminalpp::mouse::event_type::left_button_down,
@@ -244,7 +243,7 @@ token_test_data const token_test_data_table[] = {
          terminalpp::mouse::button::left,
          28,
          terminalpp::vk_modifier::shift | terminalpp::vk_modifier::ctrl
-             | terminalpp::vk_modifier::meta)}                    },
+             | terminalpp::vk_modifier::meta)}                                        },
     {"\x1B[<32;32;34M"_tb,
      {mouse_event(
          terminalpp::mouse::event_type::left_button_down,
@@ -252,13 +251,13 @@ token_test_data const token_test_data_table[] = {
          terminalpp::mouse::button::left,
          32,
          terminalpp::vk_modifier::none,
-         true)}                                                   },
+         true)}                                                                       },
     {"\x1B[<64;32;34M"_tb,
      {mouse_event(
          terminalpp::mouse::event_type::scrollwheel_up,
          {31, 33},
          terminalpp::mouse::button::scrollwheel_up,
-         64)}                                                     },
+         64)}                                                                         },
     {"\x1B[<65;32;34m"_tb,
      {mouse_event(
          terminalpp::mouse::event_type::no_button_change,
@@ -267,19 +266,19 @@ token_test_data const token_test_data_table[] = {
          65,
          terminalpp::vk_modifier::none,
          false,
-         true)}                                                   },
+         true)}                                                                       },
     {"\x1B[<66;32;34M"_tb,
      {mouse_event(
          terminalpp::mouse::event_type::no_button_change,
          {31, 33},
          terminalpp::mouse::button::scrollwheel_right,
-         66)}                                                     },
+         66)}                                                                         },
     {"\x1B[<67;32;34M"_tb,
      {mouse_event(
          terminalpp::mouse::event_type::no_button_change,
          {31, 33},
          terminalpp::mouse::button::scrollwheel_left,
-         67)}                                                     },
+         67)}                                                                         },
     {"\x1B[<160;32;34M"_tb,
      {mouse_event(
          terminalpp::mouse::event_type::no_button_change,
@@ -287,62 +286,58 @@ token_test_data const token_test_data_table[] = {
          terminalpp::mouse::button::button_8,
          160,
          terminalpp::vk_modifier::none,
-         true)}                                                   },
+         true)}                                                                       },
     {"\x1B[<129;32;34M"_tb,
      {mouse_event(
          terminalpp::mouse::event_type::no_button_change,
          {31, 33},
          terminalpp::mouse::button::button_9,
-         129)}                                                    },
+         129)}                                                                        },
     {"\x1B[<130;32;34M"_tb,
      {mouse_event(
          terminalpp::mouse::event_type::no_button_change,
          {31, 33},
          terminalpp::mouse::button::button_10,
-         130)}                                                    },
+         130)}                                                                        },
     {"\x1B[<131;32;34M"_tb,
      {mouse_event(
          terminalpp::mouse::event_type::no_button_change,
          {31, 33},
          terminalpp::mouse::button::button_11,
-         131)}                                                    },
+         131)}                                                                        },
     {"\x1B[<132;32;34M"_tb,
      {mouse_event(
          terminalpp::mouse::event_type::no_button_change,
          {31, 33},
          terminalpp::mouse::button::button_8,
          132,
-         terminalpp::vk_modifier::shift)}                         },
+         terminalpp::vk_modifier::shift)}                                             },
     {"\x1B[<192;32;34M"_tb,
      {mouse_event(
          terminalpp::mouse::event_type::no_button_change,
          {31, 33},
          terminalpp::mouse::button::unknown,
-         192)}                                                    },
+         192)}                                                                        },
     {"\x9B<000;032;034M"_tb,
      {mouse_event(
          terminalpp::mouse::event_type::left_button_down,
          {31, 33},
          terminalpp::mouse::button::left,
-         0)}                                                      },
+         0)}                                                                          },
     {"\x1B[<a;32;34M"_tb,
-     {sgr_mouse_fallback('M', {"a"_tb, "32"_tb, "34"_tb})}        },
-    {"\x1B[<0;0;34M"_tb,
-     {sgr_mouse_fallback('M', {"0"_tb, "0"_tb, "34"_tb})}         },
-    {"\x1B[<0;32;0M"_tb,
-     {sgr_mouse_fallback('M', {"0"_tb, "32"_tb, "0"_tb})}         },
-    {"\x1B[<0;32M"_tb,
-     {sgr_mouse_fallback('M', {"0"_tb, "32"_tb})}                 },
+     {sgr_mouse_fallback('M', {"a"_tb, "32"_tb, "34"_tb})}                            },
+    {"\x1B[<0;0;34M"_tb,          {sgr_mouse_fallback('M', {"0"_tb, "0"_tb, "34"_tb})}},
+    {"\x1B[<0;32;0M"_tb,          {sgr_mouse_fallback('M', {"0"_tb, "32"_tb, "0"_tb})}},
+    {"\x1B[<0;32M"_tb,            {sgr_mouse_fallback('M', {"0"_tb, "32"_tb})}        },
     {"\x1B[<0;32;34;1M"_tb,
-     {sgr_mouse_fallback('M', {"0"_tb, "32"_tb, "34"_tb, "1"_tb})}},
-    {"\x1B[<0;;34M"_tb,
-     {sgr_mouse_fallback('M', {"0"_tb, ""_tb, "34"_tb})}          },
+     {sgr_mouse_fallback('M', {"0"_tb, "32"_tb, "34"_tb, "1"_tb})}                    },
+    {"\x1B[<0;;34M"_tb,           {sgr_mouse_fallback('M', {"0"_tb, ""_tb, "34"_tb})} },
     {"\x1B[<-1;32;34M"_tb,
-     {sgr_mouse_fallback('M', {"-1"_tb, "32"_tb, "34"_tb})}       },
+     {sgr_mouse_fallback('M', {"-1"_tb, "32"_tb, "34"_tb})}                           },
     {"\x1B[<65536;32;34M"_tb,
-     {sgr_mouse_fallback('M', {"65536"_tb, "32"_tb, "34"_tb})}    },
+     {sgr_mouse_fallback('M', {"65536"_tb, "32"_tb, "34"_tb})}                        },
     {"\x1B[<0;2147483648;34M"_tb,
-     {sgr_mouse_fallback('M', {"0"_tb, "2147483648"_tb, "34"_tb})}},
+     {sgr_mouse_fallback('M', {"0"_tb, "2147483648"_tb, "34"_tb})}                    },
 
     // Cursor keys are converted to the respective virtual keys.
     {"\x1B[A"_tb,
@@ -355,7 +350,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = 'A',
                  .meta = false,
-                 .arguments = {""_tb}}}}                        },
+                 .arguments = {""_tb}}}}                                              },
     {"\x1B[B"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::cursor_down,
@@ -366,7 +361,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = 'B',
                  .meta = false,
-                 .arguments = {""_tb}}}}                        },
+                 .arguments = {""_tb}}}}                                              },
     {"\x1B[C"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::cursor_right,
@@ -377,7 +372,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = 'C',
                  .meta = false,
-                 .arguments = {""_tb}}}}                        },
+                 .arguments = {""_tb}}}}                                              },
     {"\x1B[D"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::cursor_left,
@@ -388,7 +383,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = 'D',
                  .meta = false,
-                 .arguments = {""_tb}}}}                        },
+                 .arguments = {""_tb}}}}                                              },
 
     {"\x1B[1A"_tb,
      {terminalpp::virtual_key{
@@ -400,7 +395,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = 'A',
                  .meta = false,
-                 .arguments = {"1"_tb}}}}                       },
+                 .arguments = {"1"_tb}}}}                                             },
     {"\x1B[2A"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::cursor_up,
@@ -411,7 +406,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = 'A',
                  .meta = false,
-                 .arguments = {"2"_tb}}}}                       },
+                 .arguments = {"2"_tb}}}}                                             },
     {"\x1B[3A"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::cursor_up,
@@ -422,7 +417,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = 'A',
                  .meta = false,
-                 .arguments = {"3"_tb}}}}                       },
+                 .arguments = {"3"_tb}}}}                                             },
 
     {"\x1B\x1B[A"_tb,
      {terminalpp::virtual_key{
@@ -434,7 +429,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = 'A',
                  .meta = true,
-                 .arguments = {""_tb}}}}                        },
+                 .arguments = {""_tb}}}}                                              },
 
     // Other special keyboard keys are converted to the respective virtual keys
     {"\x1B[1~"_tb,
@@ -447,7 +442,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"1"_tb}}}}                       },
+                 .arguments = {"1"_tb}}}}                                             },
     {"\x1B[1;3H"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::home,
@@ -458,7 +453,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = 'H',
                  .meta = false,
-                 .arguments = {"1"_tb, "3"_tb}}}}               },
+                 .arguments = {"1"_tb, "3"_tb}}}}                                     },
     {"\x1B[1;10H"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::home,
@@ -470,7 +465,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = 'H',
                  .meta = false,
-                 .arguments = {"1"_tb, "10"_tb}}}}              },
+                 .arguments = {"1"_tb, "10"_tb}}}}                                    },
     {"\x1B[2~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::ins,
@@ -481,7 +476,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"2"_tb}}}}                       },
+                 .arguments = {"2"_tb}}}}                                             },
     {"\x1B[3~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::del,
@@ -492,7 +487,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"3"_tb}}}}                       },
+                 .arguments = {"3"_tb}}}}                                             },
     {"\x1B[4~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::end,
@@ -503,7 +498,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"4"_tb}}}}                       },
+                 .arguments = {"4"_tb}}}}                                             },
     {"\x1B[5~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::pgup,
@@ -514,7 +509,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"5"_tb}}}}                       },
+                 .arguments = {"5"_tb}}}}                                             },
     {"\x1B[6~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::pgdn,
@@ -525,7 +520,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"6"_tb}}}}                       },
+                 .arguments = {"6"_tb}}}}                                             },
 
     // Keypad commands can have modifiers
     {"\x1B[6;5~"_tb,
@@ -538,7 +533,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"6"_tb, "5"_tb}}}}               },
+                 .arguments = {"6"_tb, "5"_tb}}}}                                     },
     {"\x1B\x1B[6~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::pgdn,
@@ -549,7 +544,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = true,
-                 .arguments = {"6"_tb}}}}                       },
+                 .arguments = {"6"_tb}}}}                                             },
 
     // Alternative sequences for control keys
     {"\x1B[H"_tb,
@@ -562,7 +557,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = 'H',
                  .meta = false,
-                 .arguments = {""_tb}}}}                        },
+                 .arguments = {""_tb}}}}                                              },
     {"\x1B[F"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::end,
@@ -573,7 +568,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = 'F',
                  .meta = false,
-                 .arguments = {""_tb}}}}                        },
+                 .arguments = {""_tb}}}}                                              },
     {"\x1B[1;3F"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::end,
@@ -584,7 +579,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = 'F',
                  .meta = false,
-                 .arguments = {"1"_tb, "3"_tb}}}}               },
+                 .arguments = {"1"_tb, "3"_tb}}}}                                     },
     {"\x1B[1;10F"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::end,
@@ -596,7 +591,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = 'F',
                  .meta = false,
-                 .arguments = {"1"_tb, "10"_tb}}}}              },
+                 .arguments = {"1"_tb, "10"_tb}}}}                                    },
     {"\x1BOA"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::cursor_up,
@@ -607,7 +602,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = 'O',
                  .command = 'A',
                  .meta = false,
-                 .arguments = {""_tb}}}}                        },
+                 .arguments = {""_tb}}}}                                              },
     {"\x1BOB"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::cursor_down,
@@ -618,7 +613,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = 'O',
                  .command = 'B',
                  .meta = false,
-                 .arguments = {""_tb}}}}                        },
+                 .arguments = {""_tb}}}}                                              },
     {"\x1BOC"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::cursor_right,
@@ -629,7 +624,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = 'O',
                  .command = 'C',
                  .meta = false,
-                 .arguments = {""_tb}}}}                        },
+                 .arguments = {""_tb}}}}                                              },
     {"\x1BOD"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::cursor_left,
@@ -640,7 +635,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = 'O',
                  .command = 'D',
                  .meta = false,
-                 .arguments = {""_tb}}}}                        },
+                 .arguments = {""_tb}}}}                                              },
 
     // All forms of tab key should yield the same virtual key
     {"\t"_tb,
@@ -648,7 +643,7 @@ token_test_data const token_test_data_table[] = {
          .key = terminalpp::vk::ht,
          .modifiers = terminalpp::vk_modifier::none,
          .repeat_count = 1,
-         .sequence = '\t'_tb}}                                  },
+         .sequence = '\t'_tb}}                                                        },
     {"\x1B[I"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::ht,
@@ -659,7 +654,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = 'I',
                  .meta = false,
-                 .arguments = {""_tb}}}}                        },
+                 .arguments = {""_tb}}}}                                              },
     {"\x1B[7I"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::ht,
@@ -670,7 +665,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = 'I',
                  .meta = false,
-                 .arguments = {"7"_tb}}}}                       },
+                 .arguments = {"7"_tb}}}}                                             },
     {"\x9BI"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::ht,
@@ -681,7 +676,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = 'I',
                  .meta = false,
-                 .arguments = {""_tb}}}}                        },
+                 .arguments = {""_tb}}}}                                              },
     {"\x1BOI"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::ht,
@@ -692,7 +687,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = 'O',
                  .command = 'I',
                  .meta = false,
-                 .arguments = {""_tb}}}}                        },
+                 .arguments = {""_tb}}}}                                              },
     {"\x8FI"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::ht,
@@ -703,7 +698,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = 'O',
                  .command = 'I',
                  .meta = false,
-                 .arguments = {""_tb}}}}                        },
+                 .arguments = {""_tb}}}}                                              },
 
     {"\x1B[Z"_tb,
      {terminalpp::virtual_key{
@@ -715,7 +710,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = 'Z',
                  .meta = false,
-                 .arguments = {""_tb}}}}                        },
+                 .arguments = {""_tb}}}}                                              },
 
     // Various forms of carriage return should be converted to the respective
     // virtual keys.
@@ -724,20 +719,20 @@ token_test_data const token_test_data_table[] = {
          .key = terminalpp::vk::enter,
          .modifiers = terminalpp::vk_modifier::none,
          .repeat_count = 1,
-         .sequence = '\n'_tb}}                                  },
+         .sequence = '\n'_tb}}                                                        },
     // Including this common but incorrect form.
     {"\n\r"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::enter,
          .modifiers = terminalpp::vk_modifier::none,
          .repeat_count = 1,
-         .sequence = '\n'_tb}}                                  },
+         .sequence = '\n'_tb}}                                                        },
     {"\r\0"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::enter,
          .modifiers = terminalpp::vk_modifier::none,
          .repeat_count = 1,
-         .sequence = '\n'_tb}}                                  },
+         .sequence = '\n'_tb}}                                                        },
     {"\r\0\r\0"_tb,
      {
          terminalpp::virtual_key{
@@ -750,7 +745,7 @@ token_test_data const token_test_data_table[] = {
              .modifiers = terminalpp::vk_modifier::none,
              .repeat_count = 1,
              .sequence = '\n'_tb},
-     }                                                          },
+     }                                                                                },
     {"\n\n"_tb,
      {
          terminalpp::virtual_key{
@@ -763,7 +758,7 @@ token_test_data const token_test_data_table[] = {
              .modifiers = terminalpp::vk_modifier::none,
              .repeat_count = 1,
              .sequence = '\n'_tb},
-     }                                                          },
+     }                                                                                },
     {"\x1BOM"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::enter,
@@ -774,7 +769,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = 'O',
                  .command = 'M',
                  .meta = false,
-                 .arguments = {""_tb}}}}                        },
+                 .arguments = {""_tb}}}}                                              },
 
     // Function keys are converted to the respective virtual keys
     {"\x1B[11~"_tb,
@@ -787,7 +782,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"11"_tb}}}}                      },
+                 .arguments = {"11"_tb}}}}                                            },
     {"\x1B[12~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f2,
@@ -798,7 +793,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"12"_tb}}}}                      },
+                 .arguments = {"12"_tb}}}}                                            },
     {"\x1B[13~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f3,
@@ -809,7 +804,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"13"_tb}}}}                      },
+                 .arguments = {"13"_tb}}}}                                            },
     {"\x1B[14~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f4,
@@ -820,7 +815,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"14"_tb}}}}                      },
+                 .arguments = {"14"_tb}}}}                                            },
     {"\x1B[15~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f5,
@@ -831,7 +826,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"15"_tb}}}}                      },
+                 .arguments = {"15"_tb}}}}                                            },
     // Sic.  The protocol really skips over 16~ and goes to 17~ for f6.
     {"\x1B[17~"_tb,
      {terminalpp::virtual_key{
@@ -843,7 +838,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"17"_tb}}}}                      },
+                 .arguments = {"17"_tb}}}}                                            },
     {"\x1B[18~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f7,
@@ -854,7 +849,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"18"_tb}}}}                      },
+                 .arguments = {"18"_tb}}}}                                            },
     {"\x1B[19~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f8,
@@ -865,7 +860,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"19"_tb}}}}                      },
+                 .arguments = {"19"_tb}}}}                                            },
     {"\x1B[20~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f9,
@@ -876,7 +871,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"20"_tb}}}}                      },
+                 .arguments = {"20"_tb}}}}                                            },
     {"\x1B[21~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f10,
@@ -887,7 +882,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"21"_tb}}}}                      },
+                 .arguments = {"21"_tb}}}}                                            },
     // Sic.  The protocol really skips over 22~ and goes to 23~ for f11.
     {"\x1B[23~"_tb,
      {terminalpp::virtual_key{
@@ -899,7 +894,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"23"_tb}}}}                      },
+                 .arguments = {"23"_tb}}}}                                            },
     {"\x1B[24~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f12,
@@ -910,7 +905,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"24"_tb}}}}                      },
+                 .arguments = {"24"_tb}}}}                                            },
 
     // Function keys may have modifiers
     {"\x1B[24;0~"_tb,
@@ -923,7 +918,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"24"_tb, "0"_tb}}}}              },
+                 .arguments = {"24"_tb, "0"_tb}}}}                                    },
     {"\x1B[24;2~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f12,
@@ -934,7 +929,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"24"_tb, "2"_tb}}}}              },
+                 .arguments = {"24"_tb, "2"_tb}}}}                                    },
     {"\x1B[24;3~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f12,
@@ -945,7 +940,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"24"_tb, "3"_tb}}}}              },
+                 .arguments = {"24"_tb, "3"_tb}}}}                                    },
     {"\x1B[24;4~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f12,
@@ -957,7 +952,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"24"_tb, "4"_tb}}}}              },
+                 .arguments = {"24"_tb, "4"_tb}}}}                                    },
     {"\x1B[24;5~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f12,
@@ -968,7 +963,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"24"_tb, "5"_tb}}}}              },
+                 .arguments = {"24"_tb, "5"_tb}}}}                                    },
     {"\x1B[24;6~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f12,
@@ -980,7 +975,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"24"_tb, "6"_tb}}}}              },
+                 .arguments = {"24"_tb, "6"_tb}}}}                                    },
     {"\x1B[24;7~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f12,
@@ -992,7 +987,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"24"_tb, "7"_tb}}}}              },
+                 .arguments = {"24"_tb, "7"_tb}}}}                                    },
     {"\x1B[24;8~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f12,
@@ -1005,7 +1000,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"24"_tb, "8"_tb}}}}              },
+                 .arguments = {"24"_tb, "8"_tb}}}}                                    },
     {"\x1B[24;9~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f12,
@@ -1016,7 +1011,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"24"_tb, "9"_tb}}}}              },
+                 .arguments = {"24"_tb, "9"_tb}}}}                                    },
     {"\x1B[24;10~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f12,
@@ -1028,7 +1023,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"24"_tb, "10"_tb}}}}             },
+                 .arguments = {"24"_tb, "10"_tb}}}}                                   },
     {"\x1B[24;11~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f12,
@@ -1040,7 +1035,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"24"_tb, "11"_tb}}}}             },
+                 .arguments = {"24"_tb, "11"_tb}}}}                                   },
     {"\x1B[24;12~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f12,
@@ -1053,7 +1048,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"24"_tb, "12"_tb}}}}             },
+                 .arguments = {"24"_tb, "12"_tb}}}}                                   },
     {"\x1B[24;13~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f12,
@@ -1065,7 +1060,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"24"_tb, "13"_tb}}}}             },
+                 .arguments = {"24"_tb, "13"_tb}}}}                                   },
     {"\x1B[24;14~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f12,
@@ -1078,7 +1073,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"24"_tb, "14"_tb}}}}             },
+                 .arguments = {"24"_tb, "14"_tb}}}}                                   },
     {"\x1B[24;15~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f12,
@@ -1091,7 +1086,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"24"_tb, "15"_tb}}}}             },
+                 .arguments = {"24"_tb, "15"_tb}}}}                                   },
     {"\x1B[24;16~"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f12,
@@ -1104,7 +1099,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = '[',
                  .command = '~',
                  .meta = false,
-                 .arguments = {"24"_tb, "16"_tb}}}}             },
+                 .arguments = {"24"_tb, "16"_tb}}}}                                   },
 
     // We can also parse alternative SS3 fkey sequences
     {"\x1BOP"_tb,
@@ -1117,7 +1112,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = 'O',
                  .command = 'P',
                  .meta = false,
-                 .arguments = {""_tb}}}}                        },
+                 .arguments = {""_tb}}}}                                              },
     {"\x1BOQ"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f2,
@@ -1128,7 +1123,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = 'O',
                  .command = 'Q',
                  .meta = false,
-                 .arguments = {""_tb}}}}                        },
+                 .arguments = {""_tb}}}}                                              },
     {"\x1BOR"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f3,
@@ -1139,7 +1134,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = 'O',
                  .command = 'R',
                  .meta = false,
-                 .arguments = {""_tb}}}}                        },
+                 .arguments = {""_tb}}}}                                              },
     {"\x1BOS"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f4,
@@ -1150,7 +1145,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = 'O',
                  .command = 'S',
                  .meta = false,
-                 .arguments = {""_tb}}}}                        },
+                 .arguments = {""_tb}}}}                                              },
     {"\x1B\x1BOS"_tb,
      {terminalpp::virtual_key{
          .key = terminalpp::vk::f4,
@@ -1161,7 +1156,7 @@ token_test_data const token_test_data_table[] = {
                  .initiator = 'O',
                  .command = 'S',
                  .meta = true,
-                 .arguments = {""_tb}}}}                        },
+                 .arguments = {""_tb}}}}                                              },
 };
 
 INSTANTIATE_TEST_SUITE_P(
@@ -1212,19 +1207,19 @@ partial_token_test_data const partial_token_test_data_table[] = {
          .initiator = '[',
          .command = 'X',
          .meta = false,
-         .arguments = {""_tb}}}  },
+         .arguments = {""_tb}}} },
     {"\x9B"_tb,
      "X"_tb,   {terminalpp::control_sequence{
          .initiator = '[',
          .command = 'X',
          .meta = false,
-         .arguments = {""_tb}}}   },
+         .arguments = {""_tb}}}  },
     {"\x1B["_tb,
      "X"_tb,   {terminalpp::control_sequence{
          .initiator = '[',
          .command = 'X',
          .meta = false,
-         .arguments = {""_tb}}}   },
+         .arguments = {""_tb}}}  },
     {"\x1B[M"_tb,
      "!X4"_tb, {terminalpp::mouse::event{
          .action_ = terminalpp::mouse::event_type::middle_button_down,

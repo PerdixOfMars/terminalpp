@@ -14,6 +14,11 @@ TEST(a_default_constructed_mouse_event, has_known_values)
     ASSERT_EQ(terminalpp::mouse::event_type::no_button_change, ev.action_);
     ASSERT_EQ(0, ev.position_.x_);
     ASSERT_EQ(0, ev.position_.y_);
+    ASSERT_EQ(terminalpp::mouse::button::none, ev.button_);
+    ASSERT_FALSE(ev.button_code_);
+    ASSERT_EQ(terminalpp::vk_modifier::none, ev.modifiers_);
+    ASSERT_FALSE(ev.is_motion_);
+    ASSERT_FALSE(ev.is_release_);
 }
 
 using mouse_event_test_data = std::tuple<
@@ -69,6 +74,17 @@ constexpr mouse_event_test_data const mouse_event_strings[] = {
          .action_ = terminalpp::mouse::event_type::left_button_down,
          .position_ = {15, 17}},
      "mouse_event[point(15,17), lmb]"                                                                            },
+    {terminalpp::mouse::event{
+         .action_ = terminalpp::mouse::event_type::button_up,
+         .position_ = {15, 17},
+         .button_ = terminalpp::mouse::button::button_8,
+         .button_code_ = 188,
+         .modifiers_ =
+             terminalpp::vk_modifier::shift | terminalpp::vk_modifier::ctrl
+             | terminalpp::vk_modifier::meta,
+         .is_motion_ = true,
+         .is_release_ = true},
+     "mouse_event[point(15,17), up, button:button-8, code:188, mods:shift|ctrl|meta, motion, release]"           },
 };
 
 INSTANTIATE_TEST_SUITE_P(
